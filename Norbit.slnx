@@ -1,5 +1,5 @@
 <Solution>
+  <Project Path="Geometry/Geometry.csproj" />
   <Project Path="Task1/Task1.csproj" />
   <Project Path="Task2/Task2.csproj" Id="5c1f9773-5939-486d-b1fb-e0aa9f98061d" />
-  <Project Path="Task3/Task3.csproj" Id="c122a933-5351-4e78-9e8c-8357a826fc89" />
 </Solution>

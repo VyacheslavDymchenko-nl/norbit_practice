@@ -38,7 +38,10 @@ namespace Task1
             for (int i = 0; i < years; i++)
             {
                 initialDeposit *= growthFactor;
-                result.Append($"Год {i + 1}: {initialDeposit:F2} руб.\n");
+                result.Append($"""
+                Год {i + 1}: {initialDeposit:F2} руб.
+
+                """);
             }
 
             return result.ToString();

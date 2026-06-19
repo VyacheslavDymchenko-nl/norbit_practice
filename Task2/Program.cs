@@ -2,7 +2,7 @@
 
 namespace Task2
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -19,7 +19,7 @@ namespace Task2
             {
                 throw new ArgumentOutOfRangeException("Длина диагонали должна быть положительной!");
             }
-            if (diagonalLength %2 == 0)
+            if (diagonalLength % 2 == 0)
             {
                 throw new ArgumentOutOfRangeException("Длина диагонали должна быть нечетной!");
             }
@@ -29,7 +29,7 @@ namespace Task2
             for (int i = 0; i < diagonalLength; i++)
             {
                 result.Append(' ', diagonalLength);
-                result.Append("\r\n");
+                result.AppendLine();
 
                 int rowCentre = i * (diagonalLength + 2) + diagonalLength / 2;
                 int offset = diagonalLength / 2 - Math.Abs(i - diagonalLength / 2);
