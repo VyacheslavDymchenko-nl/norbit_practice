@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Geometry/Geometry.csproj" />
+  <Project Path="SmartCollections/SmartCollections.csproj" Id="a91189e9-5d4a-460a-ad46-35b0525d3427" />
   <Project Path="Task1/Task1.csproj" />
   <Project Path="Task2/Task2.csproj" Id="5c1f9773-5939-486d-b1fb-e0aa9f98061d" />
 </Solution>
