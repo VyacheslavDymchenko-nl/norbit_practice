@@ -35,7 +35,7 @@ namespace Task1
             var result = new StringBuilder();
             var growthFactor = interestRate / 100m + 1m;
 
-            for (int i = 0; i < years; i++)
+            for (var i = 0; i < years; i++)
             {
                 initialDeposit *= growthFactor;
                 result.Append($"""

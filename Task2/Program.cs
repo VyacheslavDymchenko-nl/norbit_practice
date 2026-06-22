@@ -26,7 +26,7 @@ namespace Task2
 
             var result = new StringBuilder();
 
-            for (int i = 0; i < diagonalLength; i++)
+            for (var i = 0; i < diagonalLength; i++)
             {
                 result.Append(' ', diagonalLength);
                 result.AppendLine();
