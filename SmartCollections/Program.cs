@@ -45,9 +45,30 @@ namespace SmartCollections.Program
             {
                 stack1.Pop();
             }
-            catch (ArgumentNullException ex)
+            catch (InvalidOperationException ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+
+            stack1.Push(1884);
+            Console.WriteLine(stack1.Peek());
+
+            Console.WriteLine($"Стек 1 содержит 1884: {stack1.Contains(1884)}");
+            Console.WriteLine($"Стек 1 содержит 18: {stack1.Contains(18)}");
+
+
+            Console.WriteLine($"Последний элемент стека 1 до PushRange: {stack1.Peek()}");
+            Console.WriteLine($"Количество элементов стека 1 до PushRange: {stack1.Count}");
+            Console.WriteLine($"Емкость стека 1 до PushRange: {stack1.Capacity}");
+
+            stack1.PushRange(new List<int> { 1, 2, 3, 4, 5 });
+            Console.WriteLine($"Последний элемент стека 1 после PushRange: {stack1.Peek()}");
+            Console.WriteLine($"Количество элементов стека 1 после PushRange: {stack1.Count}");
+            Console.WriteLine($"Емкость стека 1 после PushRange: {stack1.Capacity}");
+
+            foreach (var item in stack1)
+            {
+                Console.WriteLine(item);
             }
         }
     }

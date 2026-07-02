@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace SmartCollections.SmartStack
 {
@@ -37,7 +37,7 @@ namespace SmartCollections.SmartStack
             if (capacity < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(capacity), "Отрицательная длина стека!");
-        }
+            }
 
             _items = new T[capacity];
         }
