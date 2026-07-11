@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="DB/DB.csproj" Id="de329efd-7ab3-432d-a759-56634d1fc4cd" />
   <Project Path="Geometry/Geometry.csproj" />
   <Project Path="SmartCollections/SmartCollections.csproj" Id="a91189e9-5d4a-460a-ad46-35b0525d3427" />
   <Project Path="Task1/Task1.csproj" />
