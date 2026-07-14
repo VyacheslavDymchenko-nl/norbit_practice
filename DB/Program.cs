@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using DB.Repository;
+using Microsoft.Extensions.Configuration;
 
 namespace DB
 {
@@ -6,42 +7,88 @@ namespace DB
     {
         static void Main()
         {
-            const string connectionString = """
-                Data Source=localhost;
-                Initial Catalog=FoodTracker;
-                Integrated Security=True;
-                Encrypt=True;
-                TrustServerCertificate=True;
-                """;
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+            string connectionString = config.GetConnectionString("DefaultConnection")!;
 
-            const string sql = """
-                UPDATE Products
-                SET ProductName = 'Говядина'
-                WHERE ProductName = 'Курица'
-                
-                SELECT ProductName AS [Название], IsActive AS [Можно покупать]
-                FROM Products
-                """;
+            var adoRepository = new AdoProductRepository(connectionString);
+            //var efRepository = new EfProductRepository(dbContext);
 
-            using (var connection = new SqlConnection(connectionString))
-            using (var command = new SqlCommand(sql, connection))
+            while (true)
             {
-                connection.Open();
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
+                Console.WriteLine();
+                Console.WriteLine("1 — ADO.NET: показать продукты");
+                Console.WriteLine("2 — ADO.NET: добавить продукт");
+                Console.WriteLine("3 — ADO.NET: изменить продукт");
+                Console.WriteLine("4 — ADO.NET: удалить продукт");
+                Console.WriteLine();
+                Console.WriteLine("5 — Entity Framework: показать продукты");
+                Console.WriteLine("6 — Entity Framework: добавить продукт");
+                Console.WriteLine("7 — Entity Framework: изменить продукт");
+                Console.WriteLine("8 — Entity Framework: удалить продукт");
+                Console.WriteLine();
+                Console.WriteLine("0 — Выход");
+                Console.Write("Выберите действие: ");
+
+                string? choice = Console.ReadLine();
+
+                switch (choice)
                 {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        string columnName = reader.GetName(i);
+                    case "1":
+                        Console.WriteLine(adoRepository.ReadProducts());
+                        break;
 
-                        object value = reader.IsDBNull(i)
-                            ? "NULL"
-                            : reader.GetValue(i);
+                    case "2":
+                        Console.Write("Введите название продукта: ");
+                        string productName = Console.ReadLine();
+                        Console.Write("Введите название категории: ");
+                        string categoryName = Console.ReadLine();
+                        Console.Write("Введите название единицы измерения: ");
+                        string unitName = Console.ReadLine();
 
-                        Console.Write($"{columnName}: {value} | ");
-                    }
+                        Console.WriteLine("Затронуто строк: " + adoRepository.CreateProduct(productName, categoryName, unitName));
+                        break;
 
-                    Console.WriteLine();
+                    case "3":
+                        Console.Write("Введите старое название продукта: ");
+                        string oldProductName = Console.ReadLine();
+                        Console.Write("Введите новое название продукта: ");
+                        string newProductName = Console.ReadLine();
+
+                        Console.WriteLine("Затронуто строк: " + adoRepository.UpdateProduct(oldProductName, newProductName));
+                        break;
+
+                    case "4":
+                        Console.Write("Введите название продукта: ");
+                        productName = Console.ReadLine();
+
+                        Console.WriteLine("Затронуто строк: " + adoRepository.DeleteProduct(productName));
+                        break;
+
+                    /*case "5":
+                        efRepository.ReadProducts();
+                        break;
+
+                    case "6":
+                        efRepository.CreateProduct();
+                        break;
+
+                    case "7":
+                        efRepository.UpdateProduct();
+                        break;
+
+                    case "8":
+                        efRepository.DeleteProduct();
+                        break;*/
+
+                    case "0":
+                        return;
+
+                    default:
+                        Console.WriteLine("Неизвестная команда.");
+                        break;
                 }
             }
         }
