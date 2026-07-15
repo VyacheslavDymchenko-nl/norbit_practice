@@ -1,4 +1,6 @@
-﻿using DB.Repository;
+﻿using DB.Data;
+using DB.Repository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace DB
@@ -14,7 +16,10 @@ namespace DB
             string connectionString = config.GetConnectionString("DefaultConnection")!;
 
             var adoRepository = new AdoProductRepository(connectionString);
-            //var efRepository = new EfProductRepository(dbContext);
+            var options = new DbContextOptionsBuilder<FoodTrackerContext>()
+                .UseSqlServer(connectionString)
+                .Options;
+            var efRepository = new EfProductRepository(new FoodTrackerContext(options));
 
             while (true)
             {
@@ -67,21 +72,36 @@ namespace DB
                         Console.WriteLine("Затронуто строк: " + adoRepository.DeleteProduct(productName));
                         break;
 
-                    /*case "5":
-                        efRepository.ReadProducts();
+                    case "5":
+                        Console.WriteLine(efRepository.ReadProducts());
                         break;
 
                     case "6":
-                        efRepository.CreateProduct();
+                        Console.Write("Введите название продукта: ");
+                        productName = Console.ReadLine();
+                        Console.Write("Введите название категории: ");
+                        categoryName = Console.ReadLine();
+                        Console.Write("Введите название единицы измерения: ");
+                        unitName = Console.ReadLine();
+
+                        Console.WriteLine("Затронуто строк: " + efRepository.CreateProduct(productName, categoryName, unitName));
                         break;
 
                     case "7":
-                        efRepository.UpdateProduct();
+                        Console.Write("Введите старое название продукта: ");
+                        oldProductName = Console.ReadLine();
+                        Console.Write("Введите новое название продукта: ");
+                        newProductName = Console.ReadLine();
+
+                        Console.WriteLine("Затронуто строк: " + efRepository.UpdateProduct(oldProductName, newProductName));
                         break;
 
                     case "8":
-                        efRepository.DeleteProduct();
-                        break;*/
+                        Console.Write("Введите название продукта: ");
+                        productName = Console.ReadLine();
+
+                        Console.WriteLine("Затронуто строк: " + efRepository.DeleteProduct(productName));
+                        break;
 
                     case "0":
                         return;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using DB.Models;
+﻿using DB.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DB.Data;
