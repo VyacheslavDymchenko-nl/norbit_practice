@@ -13,9 +13,9 @@ namespace DB.Repository
             _connectionString = connectionString;
         }
 
-        public string ReadProducts()
+        public async Task<string> ReadProductsAsync()
         {
-            const string Sql = """
+            const string CommandText = """
                 SELECT p.ProductName AS [Название],
                        c.CategoryName AS [Категория],
                        u.UnitName AS [Единица измерения]
@@ -28,33 +28,33 @@ namespace DB.Repository
                        ON p.UnitID = u.UnitID;
                 """;
             var result = new StringBuilder();
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand(CommandText, connection);
 
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(Sql, connection))
+            await connection.OpenAsync();
+
+            using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                connection.Open();
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
+                for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        string columnName = reader.GetName(i);
+                    string columnName = reader.GetName(i);
+                    object value = reader.IsDBNull(i)
+                        ? "NULL"
+                        : reader.GetValue(i);
 
-                        object value = reader.IsDBNull(i)
-                            ? "NULL"
-                            : reader.GetValue(i);
-
-                        result.Append($"{columnName}: {value} | ");
-                    }
+                    result.AppendLine($"{columnName}: {value}");
                 }
+                result.AppendLine();
             }
 
             return result.ToString();
         }
 
-        public int CreateProduct(string productName, string categoryName, string unitName)
+        public async Task<int> CreateProductAsync(string productName, string categoryName, string unitName)
         {
-            const string Sql = """
+            const string CommandText = """
                 INSERT  INTO Products (ProductName, CategoryID, UnitID)
                 VALUES               (@ProductName, (SELECT CategoryID
                                                    FROM   Categories
@@ -62,53 +62,50 @@ namespace DB.Repository
                                                                                      FROM   Units
                                                                                      WHERE  UnitName = @UnitName));
                 """;
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand(CommandText, connection);
 
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(Sql, connection))
-            {
-                command.Parameters.Add("@ProductName", SqlDbType.NVarChar, 100).Value = productName;
-                command.Parameters.Add("@CategoryName", SqlDbType.NVarChar, 100).Value = categoryName;
-                command.Parameters.Add("@UnitName", SqlDbType.NVarChar, 100).Value = unitName;
+            command.Parameters.Add("@ProductName", SqlDbType.NVarChar, 100).Value = productName;
+            command.Parameters.Add("@CategoryName", SqlDbType.NVarChar, 100).Value = categoryName;
+            command.Parameters.Add("@UnitName", SqlDbType.NVarChar, 100).Value = unitName;
 
-                connection.Open();
-                return command.ExecuteNonQuery();
-            }
+            await connection.OpenAsync();
+
+            return await command.ExecuteNonQueryAsync();
         }
 
-        public int DeleteProduct(string productName)
+        public async Task<int> DeleteProductAsync(string productName)
         {
-            const string Sql = """
+            const string CommandText = """
                 DELETE FROM Products
-                WHERE ProductName = @ProductName
+                WHERE ProductName = @ProductName;
                 """;
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand(CommandText, connection);
 
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(Sql, connection))
-            {
-                command.Parameters.Add("@ProductName", SqlDbType.NVarChar, 100).Value = productName;
+            command.Parameters.Add("@ProductName", SqlDbType.NVarChar, 100).Value = productName;
 
-                connection.Open();
-                return command.ExecuteNonQuery();
-            }
+            await connection.OpenAsync();
+
+            return await command.ExecuteNonQueryAsync();
         }
 
-        public int UpdateProduct(string oldProductName, string newProductName)
+        public async Task<int> UpdateProductAsync(string oldProductName, string newProductName)
         {
-            const string Sql = """
+            const string CommandText = """
                 UPDATE Products
                 SET ProductName = @NewProductName
-                WHERE ProductName = @OldProductName
+                WHERE ProductName = @OldProductName;
                 """;
+            using var connection = new SqlConnection(_connectionString);
+            using var command = new SqlCommand(CommandText, connection);
 
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(Sql, connection))
-            {
-                command.Parameters.Add("@NewProductName", SqlDbType.NVarChar, 100).Value = newProductName;
-                command.Parameters.Add("@OldProductName", SqlDbType.NVarChar, 100).Value = oldProductName;
+            command.Parameters.Add("@NewProductName", SqlDbType.NVarChar, 100).Value = newProductName;
+            command.Parameters.Add("@OldProductName", SqlDbType.NVarChar, 100).Value = oldProductName;
 
-                connection.Open();
-                return command.ExecuteNonQuery();
-            }
+            await connection.OpenAsync();
+
+            return await command.ExecuteNonQueryAsync();
         }
     }
 }

@@ -14,9 +14,9 @@ namespace DB.Repository
             _context = context;
         }
 
-        public string ReadProducts()
+        public async Task<string> ReadProductsAsync()
         {
-            var products = _context.Products
+            var products = await _context.Products
                 .AsNoTracking()
                 .Select(product => new
                 {
@@ -30,27 +30,29 @@ namespace DB.Repository
                         ? product.Unit.UnitName
                         : null
                 })
-                .ToList();
-
+                .ToListAsync();
             var result = new StringBuilder();
 
             foreach (var product in products)
             {
                 result.AppendLine(
-                    $"Название: {product.ProductName} | " +
-                    $"Категория: {product.CategoryName ?? "NULL"} | " +
-                    $"Единица измерения: {product.UnitName ?? "NULL"}");
+                    $"""
+                    Название: {product.ProductName} 
+                    Категория: {product.CategoryName ?? "NULL"} 
+                    Единица измерения: {product.UnitName ?? "NULL"}
+
+                    """);
             }
 
             return result.ToString();
         }
 
-        public int CreateProduct(string productName, string categoryName, string unitName)
+        public async Task<int> CreateProductAsync(string productName, string categoryName, string unitName)
         {
-            var category = _context.Categories
-                .Single(category => category.CategoryName == categoryName);
-            var unit = _context.Units
-                .Single(unit => unit.UnitName == unitName);
+            var category = await _context.Categories
+                .SingleAsync(category => category.CategoryName == categoryName);
+            var unit = await _context.Units
+                .SingleAsync(unit => unit.UnitName == unitName);
             var product = new Product()
             {
                 ProductName = productName,
@@ -60,32 +62,32 @@ namespace DB.Repository
 
             _context.Products.Add(product);
 
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
 
-        public int DeleteProduct(string productName)
+        public async Task<int> DeleteProductAsync(string productName)
         {
-            var products = _context.Products
+            var products = await _context.Products
                 .Where(product => product.ProductName == productName)
-                .ToList();
+                .ToListAsync();
 
             _context.Products.RemoveRange(products);
 
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
 
-        public int UpdateProduct(string oldProductName, string newProductName)
+        public async Task<int> UpdateProductAsync(string oldProductName, string newProductName)
         {
-            var products = _context.Products
+            var products = await _context.Products
                 .Where(product => product.ProductName == oldProductName)
-                .ToList();
+                .ToListAsync();
 
             foreach (var product in products)
             {
                 product.ProductName = newProductName;
             }
 
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
     }
 }

@@ -3,18 +3,18 @@ using DB.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace DB
+namespace DB.Program
 {
     internal class Program
     {
-        static void Main()
+        static async Task Main()
         {
             IConfiguration config = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
-            string connectionString = config.GetConnectionString("DefaultConnection")!;
 
+            string connectionString = config.GetConnectionString("DefaultConnection")!;
             var adoRepository = new AdoProductRepository(connectionString);
             var options = new DbContextOptionsBuilder<FoodTrackerContext>()
                 .UseSqlServer(connectionString)
@@ -42,7 +42,7 @@ namespace DB
                 switch (choice)
                 {
                     case "1":
-                        Console.WriteLine(adoRepository.ReadProducts());
+                        Console.WriteLine(await adoRepository.ReadProductsAsync());
                         break;
 
                     case "2":
@@ -53,7 +53,7 @@ namespace DB
                         Console.Write("Введите название единицы измерения: ");
                         string unitName = Console.ReadLine();
 
-                        Console.WriteLine("Затронуто строк: " + adoRepository.CreateProduct(productName, categoryName, unitName));
+                        Console.WriteLine($"Затронуто строк: {await adoRepository.CreateProductAsync(productName, categoryName, unitName)}");
                         break;
 
                     case "3":
@@ -62,18 +62,18 @@ namespace DB
                         Console.Write("Введите новое название продукта: ");
                         string newProductName = Console.ReadLine();
 
-                        Console.WriteLine("Затронуто строк: " + adoRepository.UpdateProduct(oldProductName, newProductName));
+                        Console.WriteLine($"Затронуто строк: {await adoRepository.UpdateProductAsync(oldProductName, newProductName)}");
                         break;
 
                     case "4":
                         Console.Write("Введите название продукта: ");
                         productName = Console.ReadLine();
 
-                        Console.WriteLine("Затронуто строк: " + adoRepository.DeleteProduct(productName));
+                        Console.WriteLine($"Затронуто строк: {await adoRepository.DeleteProductAsync(productName)}");
                         break;
 
                     case "5":
-                        Console.WriteLine(efRepository.ReadProducts());
+                        Console.WriteLine(await efRepository.ReadProductsAsync());
                         break;
 
                     case "6":
@@ -84,7 +84,7 @@ namespace DB
                         Console.Write("Введите название единицы измерения: ");
                         unitName = Console.ReadLine();
 
-                        Console.WriteLine("Затронуто строк: " + efRepository.CreateProduct(productName, categoryName, unitName));
+                        Console.WriteLine($"Затронуто строк: {await efRepository.CreateProductAsync(productName, categoryName, unitName)}");
                         break;
 
                     case "7":
@@ -93,14 +93,14 @@ namespace DB
                         Console.Write("Введите новое название продукта: ");
                         newProductName = Console.ReadLine();
 
-                        Console.WriteLine("Затронуто строк: " + efRepository.UpdateProduct(oldProductName, newProductName));
+                        Console.WriteLine($"Затронуто строк: {await efRepository.UpdateProductAsync(oldProductName, newProductName)}");
                         break;
 
                     case "8":
                         Console.Write("Введите название продукта: ");
                         productName = Console.ReadLine();
 
-                        Console.WriteLine("Затронуто строк: " + efRepository.DeleteProduct(productName));
+                        Console.WriteLine($"Затронуто строк: {await efRepository.DeleteProductAsync(productName)}");
                         break;
 
                     case "0":
