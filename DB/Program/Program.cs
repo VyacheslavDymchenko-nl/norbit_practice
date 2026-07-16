@@ -1,5 +1,6 @@
 ﻿using DB.Data;
 using DB.Repository;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -7,6 +8,27 @@ namespace DB.Program
 {
     internal class Program
     {
+        /// <summary>
+        /// Выводит сообщение, считывает строку с консоли, и проверяет что она не пустая.
+        /// </summary>
+        /// <param name="message">Выводимое в консоль сообщение пользователю.</param>
+        /// <returns>Непустая строка.</returns>
+        private static string ReadRequired(string message)
+        {
+            while (true)
+            {
+                Console.Write(message);
+
+                string? value = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value.Trim();
+                }
+
+                Console.WriteLine("Значение не может быть пустым.");
+            }
+        }
         static async Task Main()
         {
             IConfiguration config = new ConfigurationBuilder()
@@ -41,87 +63,93 @@ namespace DB.Program
 
                 string? choice = Console.ReadLine();
 
-                switch (choice)
+                try
                 {
-                    case "1":
-                        Console.WriteLine(await adoRepository.ReadProductsAsync());
+                    switch (choice)
+                    {
+                        case "1":
+                            Console.WriteLine(await adoRepository.ReadProductsAsync());
 
-                        break;
+                            break;
 
-                    case "2":
-                        Console.Write("Введите название продукта: ");
-                        string productName = Console.ReadLine();
-                        Console.Write("Введите название категории: ");
-                        string categoryName = Console.ReadLine();
-                        Console.Write("Введите название единицы измерения: ");
-                        string unitName = Console.ReadLine();
+                        case "2":
+                            string productName = ReadRequired("Введите название продукта: ");
+                            string categoryName = ReadRequired("Введите название категории: ");
+                            string unitName = ReadRequired("Введите название единицы измерения: ");
 
-                        Console.WriteLine($"Затронуто строк: {await adoRepository.CreateProductAsync(productName, categoryName, unitName)}");
+                            Console.WriteLine($"Затронуто строк: {await adoRepository.CreateProductAsync(productName, categoryName, unitName)}");
 
-                        break;
+                            break;
 
-                    case "3":
-                        Console.Write("Введите старое название продукта: ");
-                        string oldProductName = Console.ReadLine();
-                        Console.Write("Введите новое название продукта: ");
-                        string newProductName = Console.ReadLine();
+                        case "3":
+                            string oldProductName = ReadRequired("Введите старое название продукта: ");
+                            string newProductName = ReadRequired("Введите новое название продукта: ");
 
-                        Console.WriteLine($"Затронуто строк: {await adoRepository.UpdateProductAsync(oldProductName, newProductName)}");
+                            Console.WriteLine($"Затронуто строк: {await adoRepository.UpdateProductAsync(oldProductName, newProductName)}");
 
-                        break;
+                            break;
 
-                    case "4":
-                        Console.Write("Введите название продукта: ");
-                        productName = Console.ReadLine();
+                        case "4":
+                            productName = ReadRequired("Введите название продукта: ");
 
-                        Console.WriteLine($"Затронуто строк: {await adoRepository.DeleteProductAsync(productName)}");
+                            Console.WriteLine($"Затронуто строк: {await adoRepository.DeleteProductAsync(productName)}");
 
-                        break;
+                            break;
 
-                    case "5":
+                        case "5":
 
-                        Console.WriteLine(await efRepository.ReadProductsAsync());
+                            Console.WriteLine(await efRepository.ReadProductsAsync());
 
-                        break;
+                            break;
 
-                    case "6":
-                        Console.Write("Введите название продукта: ");
-                        productName = Console.ReadLine();
-                        Console.Write("Введите название категории: ");
-                        categoryName = Console.ReadLine();
-                        Console.Write("Введите название единицы измерения: ");
-                        unitName = Console.ReadLine();
+                        case "6":
+                            productName = ReadRequired("Введите название продукта: ");
+                            categoryName = ReadRequired("Введите название категории: ");
+                            unitName = ReadRequired("Введите название единицы измерения: ");
 
-                        Console.WriteLine($"Затронуто строк: {await efRepository.CreateProductAsync(productName, categoryName, unitName)}");
+                            Console.WriteLine($"Затронуто строк: {await efRepository.CreateProductAsync(productName, categoryName, unitName)}");
 
-                        break;
+                            break;
 
-                    case "7":
-                        Console.Write("Введите старое название продукта: ");
-                        oldProductName = Console.ReadLine();
-                        Console.Write("Введите новое название продукта: ");
-                        newProductName = Console.ReadLine();
+                        case "7":
+                            oldProductName = ReadRequired("Введите старое название продукта: ");
+                            newProductName = ReadRequired("Введите новое название продукта: ");
 
-                        Console.WriteLine($"Затронуто строк: {await efRepository.UpdateProductAsync(oldProductName, newProductName)}");
+                            Console.WriteLine($"Затронуто строк: {await efRepository.UpdateProductAsync(oldProductName, newProductName)}");
 
-                        break;
+                            break;
 
-                    case "8":
-                        Console.Write("Введите название продукта: ");
-                        productName = Console.ReadLine();
+                        case "8":
+                            productName = ReadRequired("Введите название продукта: ");
 
-                        Console.WriteLine($"Затронуто строк: {await efRepository.DeleteProductAsync(productName)}");
+                            Console.WriteLine($"Затронуто строк: {await efRepository.DeleteProductAsync(productName)}");
 
-                        break;
+                            break;
 
-                    case "0":
+                        case "0":
 
-                        return;
+                            return;
 
-                    default:
-                        Console.WriteLine("Неизвестная команда.");
+                        default:
+                            Console.WriteLine("Неизвестная команда.");
 
-                        break;
+                            break;
+                    }
+                }
+                catch (InvalidOperationException exception)
+                {
+                    Console.WriteLine($"Ошибка операции: {exception.Message}");
+                }
+                catch (DbUpdateException exception)
+                {
+                    Console.WriteLine($"""
+                        Не удалось сохранить изменения в базе данных:                        
+                        {exception.InnerException?.Message ?? exception.Message}
+                        """);
+                }
+                catch (SqlException exception)
+                {
+                    Console.WriteLine($"Ошибка SQL Server: {exception.Message}");
                 }
             }
         }

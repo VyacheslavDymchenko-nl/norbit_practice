@@ -67,13 +67,16 @@ namespace DB.Repository
         /// <param name="productName">Название добавляемого продукта.</param>
         /// <param name="categoryName">Категория добавляемого продукта.</param>
         /// <param name="unitName">Единица измерения добавляемого продукта.</param>
+        /// <exception cref="InvalidOperationException">Если категория или единица измерения не найдены.</exception>
         /// <returns>Количество затронутых строк.</returns>
         public async Task<int> CreateProductAsync(string productName, string categoryName, string unitName)
         {
             var category = await _context.Categories
-                .SingleAsync(category => category.CategoryName == categoryName);
+                .SingleOrDefaultAsync(category => category.CategoryName == categoryName)
+                ?? throw new InvalidOperationException($"Категория {categoryName} не найдена");
             var unit = await _context.Units
-                .SingleAsync(unit => unit.UnitName == unitName);
+                .SingleOrDefaultAsync(unit => unit.UnitName == unitName)
+                ?? throw new InvalidOperationException($"Единица измерения {unitName} не найдена");
             var product = new Product
             {
                 ProductName = productName,
