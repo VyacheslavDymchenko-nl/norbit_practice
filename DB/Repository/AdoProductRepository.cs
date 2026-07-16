@@ -4,15 +4,29 @@ using System.Text;
 
 namespace DB.Repository
 {
+    /// <summary>
+    /// Представляет репозиторий для сущности Product, используя ADO.NET
+    /// </summary>
     public class AdoProductRepository
     {
         private readonly string _connectionString;
 
+        /// <summary>
+        /// Создаёт новый экземпляр репозитория продуктов, используя готовую строку подключения.
+        /// </summary>
+        /// <param name="connectionString">Строка подключения к базе данных.</param>
+        /// <exception cref="ArgumentNullException">Если строка подключения равна null.</exception>
         public AdoProductRepository(string connectionString)
         {
+            ArgumentNullException.ThrowIfNull(connectionString, nameof(connectionString));
+
             _connectionString = connectionString;
         }
 
+        /// <summary>
+        /// Читает из базы данных и возвращает список всех продуктов.
+        /// </summary>
+        /// <returns>Количество затронутых строк.</returns>
         public async Task<string> ReadProductsAsync()
         {
             const string CommandText = """
@@ -37,7 +51,7 @@ namespace DB.Repository
 
             while (await reader.ReadAsync())
             {
-                for (int i = 0; i < reader.FieldCount; i++)
+                for (var i = 0; i < reader.FieldCount; i++)
                 {
                     string columnName = reader.GetName(i);
                     object value = reader.IsDBNull(i)
@@ -52,6 +66,13 @@ namespace DB.Repository
             return result.ToString();
         }
 
+        /// <summary>
+        /// Добавляет продукт с указанным названием, существующей категорией и единицей измерения.
+        /// </summary>
+        /// <param name="productName">Название добавляемого продукта.</param>
+        /// <param name="categoryName">Категория добавляемого продукта.</param>
+        /// <param name="unitName">Единица измерения добавляемого продукта.</param>
+        /// <returns>Количество затронутых строк.</returns>
         public async Task<int> CreateProductAsync(string productName, string categoryName, string unitName)
         {
             const string CommandText = """
@@ -74,6 +95,11 @@ namespace DB.Repository
             return await command.ExecuteNonQueryAsync();
         }
 
+        /// <summary>
+        /// Удаляет продукт по названию.
+        /// </summary>
+        /// <param name="productName">Название удаляемого продукта.</param>
+        /// <returns>Количество затронутых строк.</returns>
         public async Task<int> DeleteProductAsync(string productName)
         {
             const string CommandText = """
@@ -90,6 +116,12 @@ namespace DB.Repository
             return await command.ExecuteNonQueryAsync();
         }
 
+        /// <summary>
+        /// Изменяет название продукта.
+        /// </summary>
+        /// <param name="oldProductName">Название изменяемого продукта.</param>
+        /// <param name="newProductName">Новое название.</param>
+        /// <returns>Количество затронутых строк.</returns>
         public async Task<int> UpdateProductAsync(string oldProductName, string newProductName)
         {
             const string CommandText = """

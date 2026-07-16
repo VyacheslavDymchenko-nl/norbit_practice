@@ -16,26 +16,28 @@ namespace DB.Program
 
             string connectionString = config.GetConnectionString("DefaultConnection")!;
             var adoRepository = new AdoProductRepository(connectionString);
-            var options = new DbContextOptionsBuilder<FoodTrackerContext>()
+            DbContextOptions<FoodTrackerContext> options = new DbContextOptionsBuilder<FoodTrackerContext>()
                 .UseSqlServer(connectionString)
                 .Options;
             var efRepository = new EfProductRepository(new FoodTrackerContext(options));
 
             while (true)
             {
-                Console.WriteLine();
-                Console.WriteLine("1 — ADO.NET: показать продукты");
-                Console.WriteLine("2 — ADO.NET: добавить продукт");
-                Console.WriteLine("3 — ADO.NET: изменить продукт");
-                Console.WriteLine("4 — ADO.NET: удалить продукт");
-                Console.WriteLine();
-                Console.WriteLine("5 — Entity Framework: показать продукты");
-                Console.WriteLine("6 — Entity Framework: добавить продукт");
-                Console.WriteLine("7 — Entity Framework: изменить продукт");
-                Console.WriteLine("8 — Entity Framework: удалить продукт");
-                Console.WriteLine();
-                Console.WriteLine("0 — Выход");
-                Console.Write("Выберите действие: ");
+                Console.Write("""
+                    1 — ADO.NET: показать продукты
+                    2 — ADO.NET: добавить продукт
+                    3 — ADO.NET: изменить продукт
+                    4 — ADO.NET: удалить продукт
+                    
+                    5 — Entity Framework: показать продукты
+                    6 — Entity Framework: добавить продукт
+                    7 — Entity Framework: изменить продукт
+                    8 — Entity Framework: удалить продукт
+                    
+                    0 — Выход
+
+                    Выберите действие: 
+                    """);
 
                 string? choice = Console.ReadLine();
 
@@ -43,6 +45,7 @@ namespace DB.Program
                 {
                     case "1":
                         Console.WriteLine(await adoRepository.ReadProductsAsync());
+
                         break;
 
                     case "2":
@@ -54,6 +57,7 @@ namespace DB.Program
                         string unitName = Console.ReadLine();
 
                         Console.WriteLine($"Затронуто строк: {await adoRepository.CreateProductAsync(productName, categoryName, unitName)}");
+
                         break;
 
                     case "3":
@@ -63,6 +67,7 @@ namespace DB.Program
                         string newProductName = Console.ReadLine();
 
                         Console.WriteLine($"Затронуто строк: {await adoRepository.UpdateProductAsync(oldProductName, newProductName)}");
+
                         break;
 
                     case "4":
@@ -70,10 +75,13 @@ namespace DB.Program
                         productName = Console.ReadLine();
 
                         Console.WriteLine($"Затронуто строк: {await adoRepository.DeleteProductAsync(productName)}");
+
                         break;
 
                     case "5":
+
                         Console.WriteLine(await efRepository.ReadProductsAsync());
+
                         break;
 
                     case "6":
@@ -85,6 +93,7 @@ namespace DB.Program
                         unitName = Console.ReadLine();
 
                         Console.WriteLine($"Затронуто строк: {await efRepository.CreateProductAsync(productName, categoryName, unitName)}");
+
                         break;
 
                     case "7":
@@ -94,6 +103,7 @@ namespace DB.Program
                         newProductName = Console.ReadLine();
 
                         Console.WriteLine($"Затронуто строк: {await efRepository.UpdateProductAsync(oldProductName, newProductName)}");
+
                         break;
 
                     case "8":
@@ -101,13 +111,16 @@ namespace DB.Program
                         productName = Console.ReadLine();
 
                         Console.WriteLine($"Затронуто строк: {await efRepository.DeleteProductAsync(productName)}");
+
                         break;
 
                     case "0":
+
                         return;
 
                     default:
                         Console.WriteLine("Неизвестная команда.");
+
                         break;
                 }
             }
